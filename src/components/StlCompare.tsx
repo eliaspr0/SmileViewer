@@ -58,7 +58,7 @@ export function StlCompare() {
 
       const makeScene = () => {
         const s = new THREE.Scene();
-        const hemi = new THREE.HemisphereLight(0xffffff, 0x9a8f8a, 1.1);
+        const hemi = new THREE.HemisphereLight(0xffffff, 0x9a8f8a, 0.55);
         hemi.position.copy(WORLD_UP); // sky from +Z, ground from -Z
         s.add(hemi);
         return s;
@@ -67,8 +67,8 @@ export function StlCompare() {
       const groups: Record<Side, any> = { before: new THREE.Group(), after: new THREE.Group() };
       scenes.before.add(groups.before);
       scenes.after.add(groups.after);
-      const key = new THREE.DirectionalLight(0xffffff, 1.6);
-      key.position.set(0.3, 0.4, 1);
+      const key = new THREE.DirectionalLight(0xffffff, 0.8);
+      key.position.set(0.45, 0.3, 1.1);
       camera.add(key);
       // camera can only have one parent; give each scene its own head-light clone
       const key2 = key.clone();
@@ -77,7 +77,7 @@ export function StlCompare() {
 
       const material = (opacity = 1) =>
         new THREE.MeshPhysicalMaterial({
-          color: 0xd0bda2, roughness: 0.32, metalness: 0, clearcoat: 0.4, clearcoatRoughness: 0.3,
+          color: 0xd0bda2, roughness: 0.55, metalness: 0.05, clearcoat: 0.2, clearcoatRoughness: 0.6,
           transparent: true, opacity,
         });
       const mats: Record<Side, any> = { before: material(1), after: material(0) };
@@ -87,15 +87,40 @@ export function StlCompare() {
       const center = new THREE.Vector3();
       const loader = new STLLoader();
 
+      const getCenterForSide = (side: Side) => {
+        const meshes: any[] = groups[side].children;
+        if (!meshes.length) return null;
+        const box = new THREE.Box3();
+        meshes.forEach((m) => {
+          m.geometry.computeBoundingBox();
+          box.union(m.geometry.boundingBox);
+        });
+        return box.getCenter(new THREE.Vector3());
+      };
+
       // Keep the STL coordinates intact so scans do not get baked into a shared origin.
-      // We still use the combined bounding box for framing and camera motion, but do not
-      // translate each geometry in-place, which causes the models to lock together.
+      // Orbit around the midpoint between the before/after centers so the rotation feels
+      // natural instead of looking “locked” to a forced origin.
       const recenter = () => {
         const meshes: any[] = [...groups.before.children, ...groups.after.children];
         if (!meshes.length) return;
+
+        const beforeCenter = getCenterForSide("before");
+        const afterCenter = getCenterForSide("after");
+
+        if (beforeCenter && afterCenter) {
+          center.copy(beforeCenter).lerp(afterCenter, 0.5);
+        } else if (beforeCenter) {
+          center.copy(beforeCenter);
+        } else if (afterCenter) {
+          center.copy(afterCenter);
+        }
+
         const box = new THREE.Box3();
-        meshes.forEach((m) => { m.geometry.computeBoundingBox(); box.union(m.geometry.boundingBox); });
-        box.getCenter(center);
+        meshes.forEach((m) => {
+          m.geometry.computeBoundingBox();
+          box.union(m.geometry.boundingBox);
+        });
         radius = box.getBoundingSphere(new THREE.Sphere()).radius;
       };
 
