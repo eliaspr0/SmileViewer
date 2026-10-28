@@ -77,7 +77,7 @@ export function StlCompare() {
 
       const material = (opacity = 1) =>
         new THREE.MeshPhysicalMaterial({
-          color: 0xad8d5f, roughness: 0.32, metalness: 0, clearcoat: 0.2, clearcoatRoughness: 0.3,
+          color: 0xad8d5f, roughness: 0.32, metalness: 0, clearcoat: 0.4, clearcoatRoughness: 0.3,
           transparent: true, opacity,
         });
       const mats: Record<Side, any> = { before: material(1), after: material(0) };
