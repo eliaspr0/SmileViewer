@@ -164,6 +164,6 @@
 
 .si-range { -webkit-appearance: none; appearance: none; height: 6px; border-radius: 999px; outline: none;
   background: linear-gradient(to right, var(--si-green) var(--p), var(--card) var(--p)); }
-.si-range::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; border-radius: 3px;
+.si-range::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%;
   background: var(--si-green); border: 2px solid var(--card); box-shadow: 0 0 0 1px var(--si-green); cursor: pointer; }
-.si-range::-moz-range-thumb { width: 10px; height: 10px; border-radius: 3px; background: var(--si-green); border: 2px solid var(--card); }
+.si-range::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: var(--si-green); border: 2px solid var(--card); }

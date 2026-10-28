@@ -4,10 +4,10 @@ import { StlCompare } from "@/components/StlCompare";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Smile Viewer — Current vs New Smile" },
-      { name: "description", content: "Drag and drop before and after clear aligner STL scans to preview the patient's new smile in 3D." },
-      { property: "og:title", content: "Smile Viewer — Current vs New Smile" },
-      { property: "og:description", content: "Drag and drop before and after clear aligner STL scans to preview the patient's new smile in 3D." },
+      { title: "Smile Viewer — Starter Smile vs Final Smile" },
+      { name: "description", content: "Drag and drop before and after clear aligner STL scans to preview the patient's final smile in 3D." },
+      { property: "og:title", content: "Smile Viewer — Starter Smile vs Final Smile" },
+      { property: "og:description", content: "Drag and drop before and after clear aligner STL scans to preview the patient's final smile in 3D." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
