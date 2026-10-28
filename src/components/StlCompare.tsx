@@ -87,21 +87,15 @@ export function StlCompare() {
       const center = new THREE.Vector3();
       const loader = new STLLoader();
 
-      // Center all mesh geometries around the world origin. One shared offset is used
-      // for every scan (before and after) so they stay registered to each other.
-      const applied = new THREE.Vector3(); // offset currently baked into the geometries
+      // Keep the STL coordinates intact so scans do not get baked into a shared origin.
+      // We still use the combined bounding box for framing and camera motion, but do not
+      // translate each geometry in-place, which causes the models to lock together.
       const recenter = () => {
         const meshes: any[] = [...groups.before.children, ...groups.after.children];
         if (!meshes.length) return;
         const box = new THREE.Box3();
         meshes.forEach((m) => { m.geometry.computeBoundingBox(); box.union(m.geometry.boundingBox); });
-        const c = box.getCenter(new THREE.Vector3());
-        if (c.lengthSq() > 1e-12) {
-          meshes.forEach((m) => { m.geometry.translate(-c.x, -c.y, -c.z); m.geometry.computeBoundingSphere(); });
-          applied.add(c);
-        }
-        box.translate(c.negate());
-        center.set(0, 0, 0);
+        box.getCenter(center);
         radius = box.getBoundingSphere(new THREE.Sphere()).radius;
       };
 
@@ -136,11 +130,9 @@ export function StlCompare() {
         load(side, bufs) {
           const firstLoad = !groups.before.children.length && !groups.after.children.length;
           groups[side].children.slice().forEach((m: any) => { groups[side].remove(m); m.geometry.dispose(); });
-          if (!groups.before.children.length && !groups.after.children.length) applied.set(0, 0, 0);
           bufs.forEach((b) => {
             const g = loader.parse(b);
             g.computeVertexNormals();
-            g.translate(-applied.x, -applied.y, -applied.z);
             groups[side].add(new THREE.Mesh(g, mats[side]));
           });
           recenter();
@@ -244,7 +236,7 @@ export function StlCompare() {
 
   const DropSlot = ({ side, label }: { side: Side; label: string }) => (
     <label
-      className="flex flex-1 cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-si-border bg-card/80 p-6 text-center transition-colors hover:border-si-green data-[over=true]:border-si-green data-[over=true]:bg-si-green/10"
+      className="flex flex-1 cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-si-border bg-card/80 p-6 text-center transition-colors hover:border-si-green/80 hover:bg-card"
       onDragOver={(e) => { e.preventDefault(); e.currentTarget.dataset["over"] = "true"; }}
       onDragLeave={(e) => { e.currentTarget.dataset["over"] = "false"; }}
       onDrop={(e) => { e.preventDefault(); e.stopPropagation(); e.currentTarget.dataset["over"] = "false"; setDragging(false); setPicker(false); loadFiles(side, e.dataTransfer.files); }}
