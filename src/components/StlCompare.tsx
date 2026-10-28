@@ -84,7 +84,7 @@ export function StlCompare() {
 
       const material = (opacity = 1) =>
         new THREE.MeshPhysicalMaterial({
-          color: 0xe7d3b5, roughness: 0.62, metalness: 0.05, clearcoat: 0.18, clearcoatRoughness: 0.7,
+          color: 0xad8d5f, roughness: 0.62, metalness: 0.05, clearcoat: 0.18, clearcoatRoughness: 0.7,
           transparent: true, opacity,
         });
       const mats: Record<Side, any> = { before: material(1), after: material(0) };
@@ -284,7 +284,7 @@ export function StlCompare() {
   );
 
   const ViewSelector = () => (
-    <div className="absolute left-4 top-1/2 z-30 flex -translate-y-1/2 flex-col gap-2 rounded-xl border border-si-border bg-card/90 p-2 shadow-si backdrop-blur-sm">
+    <div className="pointer-events-auto absolute left-4 top-1/2 z-40 flex -translate-y-1/2 flex-col gap-2 rounded-xl border border-si-border bg-card/95 p-2 shadow-si backdrop-blur-sm">
       {VIEW_ICONS.map(({ key, Icon, label }) => (
         <button
           key={key}
@@ -292,7 +292,7 @@ export function StlCompare() {
           aria-label={label}
           title={label}
           onClick={() => { setView(key); apiRef.current?.setView(key); }}
-          className={`flex h-10 w-10 items-center justify-center rounded-lg border transition-colors ${view === key ? "border-si-green bg-si-green/12 text-si-green" : "border-transparent bg-transparent text-foreground hover:bg-muted"}`}
+          className={`flex h-10 w-10 items-center justify-center rounded-lg border transition-colors ${view === key ? "border-si-green bg-si-green/15 text-si-green" : "border-transparent bg-transparent text-foreground hover:bg-muted"}`}
         >
           <Icon className="h-4 w-4" />
         </button>
