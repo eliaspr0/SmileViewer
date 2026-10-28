@@ -1,10 +1,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useRef, useState } from "react";
-import { Columns2, Pause, Play, Upload } from "lucide-react";
+import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, Columns2, Eye, Pause, Play, Upload } from "lucide-react";
 
 type Side = "before" | "after";
 type ViewName = "Front" | "Top" | "Bottom" | "Left" | "Right";
 const VIEWS: ViewName[] = ["Front", "Top", "Bottom", "Left", "Right"];
+const VIEW_ICONS: Array<{ key: ViewName; Icon: typeof Eye; label: string }> = [
+  { key: "Front", Icon: Eye, label: "Front view" },
+  { key: "Top", Icon: ArrowUp, label: "Top view" },
+  { key: "Bottom", Icon: ArrowDown, label: "Bottom view" },
+  { key: "Left", Icon: ArrowLeft, label: "Left view" },
+  { key: "Right", Icon: ArrowRight, label: "Right view" },
+];
 
 type Api = {
   load: (side: Side, bufs: ArrayBuffer[]) => void;
@@ -58,7 +65,7 @@ export function StlCompare() {
 
       const makeScene = () => {
         const s = new THREE.Scene();
-        const hemi = new THREE.HemisphereLight(0xffffff, 0x9a8f8a, 0.55);
+        const hemi = new THREE.HemisphereLight(0xffffff, 0x9a8f8a, 0.4);
         hemi.position.copy(WORLD_UP); // sky from +Z, ground from -Z
         s.add(hemi);
         return s;
@@ -67,7 +74,7 @@ export function StlCompare() {
       const groups: Record<Side, any> = { before: new THREE.Group(), after: new THREE.Group() };
       scenes.before.add(groups.before);
       scenes.after.add(groups.after);
-      const key = new THREE.DirectionalLight(0xffffff, 0.8);
+      const key = new THREE.DirectionalLight(0xffffff, 0.62);
       key.position.set(0.45, 0.3, 1.1);
       camera.add(key);
       // camera can only have one parent; give each scene its own head-light clone
@@ -77,7 +84,7 @@ export function StlCompare() {
 
       const material = (opacity = 1) =>
         new THREE.MeshPhysicalMaterial({
-          color: 0xd0bda2, roughness: 0.55, metalness: 0.05, clearcoat: 0.2, clearcoatRoughness: 0.6,
+          color: 0xe7d3b5, roughness: 0.62, metalness: 0.05, clearcoat: 0.18, clearcoatRoughness: 0.7,
           transparent: true, opacity,
         });
       const mats: Record<Side, any> = { before: material(1), after: material(0) };
@@ -276,6 +283,23 @@ export function StlCompare() {
     </label>
   );
 
+  const ViewSelector = () => (
+    <div className="absolute left-4 top-1/2 z-30 flex -translate-y-1/2 flex-col gap-2 rounded-xl border border-si-border bg-card/90 p-2 shadow-si backdrop-blur-sm">
+      {VIEW_ICONS.map(({ key, Icon, label }) => (
+        <button
+          key={key}
+          type="button"
+          aria-label={label}
+          title={label}
+          onClick={() => { setView(key); apiRef.current?.setView(key); }}
+          className={`flex h-10 w-10 items-center justify-center rounded-lg border transition-colors ${view === key ? "border-si-green bg-si-green/12 text-si-green" : "border-transparent bg-transparent text-foreground hover:bg-muted"}`}
+        >
+          <Icon className="h-4 w-4" />
+        </button>
+      ))}
+    </div>
+  );
+
   return (
     <div
       className="relative flex h-screen w-full flex-col items-center overflow-hidden bg-si-bg font-si"
@@ -299,11 +323,15 @@ export function StlCompare() {
       {/* viewer */}
       <div className="relative w-full flex-1">
         <div ref={hostRef} className="absolute inset-0" />
+        {hasAny && <ViewSelector />}
         {split && hasAny && (
-          <div className="pointer-events-none absolute inset-x-0 top-2 flex text-sm font-semibold text-muted-foreground">
-            <span className="flex-1 text-center">Current smile</span>
-            <span className="flex-1 text-center">New smile</span>
-          </div>
+          <>
+            <div className="pointer-events-none absolute inset-y-0 left-1/2 z-10 w-px -translate-x-1/2 bg-si-border" />
+            <div className="pointer-events-none absolute inset-x-0 top-2 z-10 flex text-sm font-semibold text-muted-foreground">
+              <span className="flex-1 text-center">Current smile</span>
+              <span className="flex-1 text-center">New smile</span>
+            </div>
+          </>
         )}
         {(!hasAny || dragging || picker) && (
           <div className="absolute inset-0 z-20 flex items-center justify-center p-8"
@@ -321,16 +349,6 @@ export function StlCompare() {
           </button>
         )}
         {error && <p className="absolute bottom-2 left-0 right-0 z-30 text-center text-sm text-destructive">{error}</p>}
-      </div>
-
-      {/* view buttons */}
-      <div className="z-10 mb-5 flex overflow-hidden rounded-lg border border-si-border bg-card">
-        {VIEWS.map((v) => (
-          <button key={v}
-            onClick={() => { setView(v); apiRef.current?.setView(v); }}
-            className={`w-[92px] py-3 text-[17px] font-bold transition-colors ${view === v ? "rounded-lg bg-si-green text-primary-foreground" : "text-foreground hover:bg-muted"}`}
-          >{v}</button>
-        ))}
       </div>
 
       {/* timeline */}
