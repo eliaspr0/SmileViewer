@@ -25,7 +25,7 @@ npm install
 npm run dev
 ```
 
-Then open http://localhost:8080.
+Then open http://localhost:8080. or try on: https://smileviewer.eliasprountzos.workers.dev/
 
 ## Built with
 
