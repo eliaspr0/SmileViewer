@@ -22,6 +22,9 @@ export default defineConfig({
     tanstackStart({ server: { entry: "server" } }),
     viteReact(),
     tailwindcss(),
-    nitro({ preset: "cloudflare-module" }),
+    nitro({
+      preset: "cloudflare-module",
+      cloudflare: { wrangler: { name: "smileviewer" } },
+    }),
   ],
 });
